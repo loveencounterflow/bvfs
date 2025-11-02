@@ -7,6 +7,7 @@
 
 - [Bric-A-Brac File Mirror (to be renamed)](#bric-a-brac-file-mirror-to-be-renamed)
   - [FUSE Driver](#fuse-driver)
+  - [Adaptation of the SQLiteFS Driver](#adaptation-of-the-sqlitefs-driver)
   - [Additions to the SQLiteFS Driver](#additions-to-the-sqlitefs-driver)
   - [Versioning](#versioning)
   - [Operational Characteristics](#operational-characteristics)
@@ -27,14 +28,17 @@
 * Driver `sqlite-fs` (\~5,800_000 bytes) compiled for Linux 6.8 on AMD64 included but may have to be
   recompiled from sources for other architectures or kernel versions.
 
+## Adaptation of the SQLiteFS Driver
+
 * Original source has been adapted (in [my version of
   SQLiteFS](https://github.com/loveencounterflow/sqlitefs)) for the purposes of development and
   distribution; as such, it is compatible with the original version which may be used where preferrable.
 
-  * *Changes* to SQLiteFS (see also Addtions, below) include:
-    * All `atime` values have been set to always use UNIX epoch (Thursday, 1. January 1970 00:00:00;
-      timestamp zero) to avoid the act of merely *reading* a file to be recorded to become recorded in the
-      SQLiteFS DB and hence in the git repo state.
+* *Changes* include:
+
+  * All `atime` values have been set to always use UNIX epoch (Thursday, 1. January 1970 00:00:00;
+    timestamp zero) to avoid the act of merely *reading* a file to be recorded to become recorded in the
+    SQLiteFS DB and hence in the git repo state.
 
 ## Additions to the SQLiteFS Driver
 
@@ -53,8 +57,8 @@
 ## Versioning
 
 * The purpose of a Bric-A-Brac File Mirror is to enable a cache of files kept within a single DB file. As
-  such, one could add **(1)**&nbsp;the files of the mounted file system to versioning, or else
-  **(2)**&nbsp;the SQLiteFS DB file.
+  such, one could add **(1)**&nbsp;the *files of the mounted file system* for versioning, or else
+  **(2)**&nbsp;the *SQLiteFS DB file*.
 
 * Both solutions are unfortunate:
   * Versioning the mounted file system presupposes it is within a git repo.
@@ -65,8 +69,10 @@
   * As a binary file, the SQLiteFS DB file is not well suited for versioning; changes small and big, trifle
     and substantial all become smooshed together into indistinct 'something is different here' commits.
 
-* For this reason, full DB dumps (produced by `sqlite3 bricabracfs.sqlite ".dump" > bricabracfs.dump`) are
-  used for versioning.
+* For this reason, *full DB dumps* (produced by `sqlite3 bricabracfs.sqlite ".dump" > bricabracfs.dump`) are
+  used for versioning instead.
+  * Versioning DB dumps means that file metadata such as access and modification times become part of the
+    object data, prompting
   * A corrollary of this is that the SQLiteFS DB proper can and sometimes will have to be reconstructed from
     a dump using the inverse of the above, `sqlite3 bricabracfs.sqlite < bricabracfs.dump`. In a way, we now
     have an entire file system contained in a human-readable text file, which is cool.
