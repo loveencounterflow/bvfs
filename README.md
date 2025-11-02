@@ -72,7 +72,7 @@
 * For this reason, *full DB dumps* (produced by `sqlite3 bricabracfs.sqlite ".dump" > bricabracfs.dump`) are
   used for versioning instead.
   * Versioning DB dumps means that file metadata such as access and modification times become part of the
-    object data, prompting
+    object data, prompting the [Adaptations](#adaptation-of-the-sqlitefs-driver) mentioned above.
   * A corrollary of this is that the SQLiteFS DB proper can and sometimes will have to be reconstructed from
     a dump using the inverse of the above, `sqlite3 bricabracfs.sqlite < bricabracfs.dump`. In a way, we now
     have an entire file system contained in a human-readable text file, which is cool.
