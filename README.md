@@ -10,6 +10,7 @@
   - [Adaptation of the SQLiteFS Driver](#adaptation-of-the-sqlitefs-driver)
   - [Additions to the SQLiteFS Driver](#additions-to-the-sqlitefs-driver)
   - [Versioning](#versioning)
+  - [Use of Extended File Attributes (`xattr`s)](#use-of-extended-file-attributes-xattrs)
   - [Operational Characteristics](#operational-characteristics)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -73,9 +74,28 @@
   used for versioning instead.
   * Versioning DB dumps means that file metadata such as access and modification times become part of the
     object data, prompting the [Adaptations](#adaptation-of-the-sqlitefs-driver) mentioned above.
-  * A corrollary of this is that the SQLiteFS DB proper can and sometimes will have to be reconstructed from
-    a dump using the inverse of the above, `sqlite3 bricabracfs.sqlite < bricabracfs.dump`. In a way, we now
-    have an entire file system contained in a human-readable text file, which is cool.
+  * A corrollary of this is that the SQLiteFS DB proper can be and sometimes will have to be reconstructed
+    from a dump using the inverse of the above, `sqlite3 bricabracfs.sqlite < bricabracfs.dump`. In a way,
+    we now have an entire file system contained in a human-readable text file, which is cool.
+
+## Use of Extended File Attributes (`xattr`s)
+
+* Can be written and read using either the file system interface (`setfattr`, `getfattr`) or directly
+  through the SQLite DB.
+
+* Downside: when accessed via SQL, SQLite `X''` string literals with `hex` encoded string values must be
+  used; writing string values directly does not work.
+
+* Downside: Extended attributes are not preserved by git, meaning when cloning a repo with mirrored files,
+  no file will *look* like it's mirrored.
+
+* Upside: when file copying is done with proper settings (as in `cp --preserve=all "$mirror"
+  "$destination"`), `xattr`s will be preserved so can be used later to check file status. Files that do have
+  proper extended attributes could then be processed automatically; files with mismatching or missing
+  attributes could trigger interactive prompts ("does not look like a mirrored file, proceed anyway?").
+
+* Upside: listing files on the command line can be done so attributes are shown. Not so easy when using GUI
+  file managers, though, so utility for the user is limited.
 
 
 ## Operational Characteristics
