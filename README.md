@@ -91,3 +91,13 @@ debug 'Ωcrypto___7', '1f09d30c707d53f3d16c530dd73d70a6ce7596a9'
 help 'Ωcrypto__12', ( Buffer.from 'f0ab9d80f0ab9d81f0ab9d83', 'hex' ).toString()
 help 'Ωcrypto__12', ( Buffer.from '𫝃𫝄𫝅𫝇', 'utf-8' ).toString 'hex'
 ```
+
+```bash
+grep -Pi 'sqlitefs|' /etc/mtab
+```
+
+expect output:
+
+```
+sqlitefs /path/to/mount ...
+```
