@@ -11,6 +11,7 @@
   - [Additions to the SQLiteFS Driver](#additions-to-the-sqlitefs-driver)
   - [Versioning](#versioning)
   - [Operational Characteristics](#operational-characteristics)
+  - [File System Manipulation via SQL](#file-system-manipulation-via-sql)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -101,3 +102,23 @@ expect output:
 ```
 sqlitefs /path/to/mount ...
 ```
+
+## File System Manipulation via SQL
+
+```
+select mode from metadata where id = 12;
+
+ .rw--w---- 33168 100620 1000000110010000
+ .rw--w--w- 33170 100622 1000000110010010
+ .r---w--w- 33042 100622 1000000100010010
+ .r---w--w- 32786 100022 1000000000010010
+ .rw-rw-r-- 33204 100664 1000000110110100
+                     ugo
+                         1234
+                             111
+                                u  g  o
+                                rwx......
+                                ...rwx...
+                                ......rwx
+```
+
