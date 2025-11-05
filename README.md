@@ -122,3 +122,21 @@ select mode from metadata where id = 12;
                                 ......rwx
 ```
 
+* when FS is open:
+  * all folders have `0o775` (`drwxrwxr-x`)
+  * all   files have `0o664` (`.rw-rw-r--`)
+    * later: provisions for executable files, `setuid` &c.
+    * take care to exclude symlinks (reflect permissions of thir target)
+* when FS is closed:
+  * all folders have `0o555` (`dr-xr-xr-x`)
+  * all   files have `0o444` (`.r--r--r--`)
+
+
+
+```sql
+p & 0xfe00 /* 0o177000 0b1111111_000_000_000 */ | 0x01fd /* 0o775 drwxrwxr-x folder open */
+p & 0xfe00 /* 0o177000 0b1111111_000_000_000 */ | 0x01b4 /* 0o664 .rw-rw-r-- file open */
+p & 0xfe00 /* 0o177000 0b1111111_000_000_000 */ | 0x016d /* 0o555 dr-xr-xr-x folder closed */
+p & 0xfe00 /* 0o177000 0b1111111_000_000_000 */ | 0x0124 /* 0o444 .r--r--r-- file closed */
+```
+
