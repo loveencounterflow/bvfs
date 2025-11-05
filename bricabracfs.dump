@@ -154,6 +154,11 @@ CREATE TABLE bb_protocol_prefixes (
 INSERT INTO bb_protocol_prefixes VALUES('https','https://');
 INSERT INTO bb_protocol_prefixes VALUES('http','http://');
 INSERT INTO bb_protocol_prefixes VALUES('file','file://');
+CREATE TABLE bb_cids (
+    file_id     integer unique not null,
+    cid         text,
+  foreign key ( file_id ) references metadata( id ) on delete cascade,
+  primary key ( file_id ) );
 CREATE VIEW bb_paths as with recursive
   bb_path_tree( parent_id, file_id, file_type, name, path ) as (
     -- .....................................................................................................
@@ -189,4 +194,14 @@ select
   from bb_path_tree as q
   left join bb_fs_object_types as e on ( q.file_type = e.kind )
 ;
+CREATE VIEW bb_list as select
+    m.id                          as file_id,
+    q.parent_id                   as parent_id,
+    q.type                        as type,
+    format( '0o%06.o', m.mode )   as mode_o,
+    q.name                        as name,
+    q.path                        as path
+  from bb_paths as q
+  left join metadata as m on ( q.file_id = m.id )
+  order by q.path;
 COMMIT;
