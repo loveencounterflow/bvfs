@@ -11,7 +11,10 @@
   - [Additions to the SQLiteFS Driver](#additions-to-the-sqlitefs-driver)
   - [Versioning](#versioning)
   - [Operational Characteristics](#operational-characteristics)
+    - [Closed and Opened Modes](#closed-and-opened-modes)
+    - [Other](#other)
   - [File System Manipulation via SQL](#file-system-manipulation-via-sql)
+  - [To Do](#to-do)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -81,6 +84,13 @@
 
 ## Operational Characteristics
 
+### Closed and Opened Modes
+
+* necessity to store desired destination file permissions separately as the file permissions in storage are
+  used for the file system's operation
+
+### Other
+
 ```coffee
 get_sha1 = ( text ) ->
   CRYPTO = require 'crypto'
@@ -138,5 +148,17 @@ p & 0xfe00 /* 0o177000 0b1111111_000_000_000 */ | 0x01fd /* 0o775 drwxrwxr-x fol
 p & 0xfe00 /* 0o177000 0b1111111_000_000_000 */ | 0x01b4 /* 0o664 .rw-rw-r-- file open */
 p & 0xfe00 /* 0o177000 0b1111111_000_000_000 */ | 0x016d /* 0o555 dr-xr-xr-x folder closed */
 p & 0xfe00 /* 0o177000 0b1111111_000_000_000 */ | 0x0124 /* 0o444 .r--r--r-- file closed */
+
+p = p | 0b0000000_010_010_000 /* = 0o000220 = 0x0090: folder, file open */
+p = p & 0b1111111_101_101_111 /* = 0o177557 = 0xff6f: folder, file closed */
 ```
+
+
+
+
+## To Do
+
+* **`[—]`** do not modify source code of [SQLiteFS](https://github.com/narumatt/sqlitefs); instead, run SQL
+  to change `atime`s as seen fit for purpose prior to `sqlite3 '.dump'`ing the DB
+
 
