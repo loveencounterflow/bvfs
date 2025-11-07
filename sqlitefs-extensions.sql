@@ -95,13 +95,15 @@ create view if not exists bb_paths as with recursive
     -- .....................................................................................................
     -- Base case: top-level entries (parent_id NULL or 0, depending on your schema)
     select
-        parent_id     as parent_id,
-        child_id      as file_id,
-        file_type     as file_type,
-        name          as name,
-        '/' || name   as path
+        parent_id                                         as parent_id,
+        child_id                                          as file_id,
+        file_type                                         as file_type,
+        name                                              as name,
+        case name when '.' then '/' else '/' || name end  as path
       from dentry
-      where parent_id is 1 and name not in ( '.', '..' )
+      where true
+        and ( parent_id is 1 )
+        and ( name != '..' )
     -- .....................................................................................................
     union all
     -- .....................................................................................................
@@ -114,52 +116,62 @@ create view if not exists bb_paths as with recursive
         p.path || '/' || d.name as path
       from dentry       as d
       join bb_path_tree as p on d.parent_id = p.file_id
-      where d.name not in ('.', '..') )
--- .........................................................................................................
+      where true
+        and ( d.name not in ( '.', '..' ) )
+        and ( path != '/' ) )
+  -- .......................................................................................................
   select
-      q.file_id   as file_id,
-      q.parent_id as parent_id,
-      e.name      as type,
-      q.name      as name,
-      q.path      as path
+      q.file_id                                     as file_id,
+      q.parent_id                                   as parent_id,
+      case when q.file_id is 1  then  'R' else
+        case e.name
+          when 'folder'         then  'D'
+          when 'file'           then  'F'
+          else                        'X' end end   as category,
+      e.name                                        as type,
+      q.file_type                                   as "(file_type)",
+      ( m.mode & 0xfffffe00 )                       as upper_bits,
+      q.name                                        as name,
+      q.path                                        as path
     from bb_path_tree as q
-    left join bb_fs_object_types as e on ( q.file_type = e.kind );
+    left join bb_fs_object_types as e on ( q.file_type = e.kind )
+    join metadata as m on ( q.file_id = m.id );
 
 -- ---------------------------------------------------------------------------------------------------------
 drop view if exists bb_standard_modes;
 create view if not exists bb_standard_modes as select
-    y.file_id                               as file_id,
-    ( y.mode & 0xfffffe00 ) | ( case y.type
-      when 'folder' then 0x01fd
-      when 'file'   then 0x01b4 end )       as open_mode,
-    ( y.mode & 0xfffffe00 ) | ( case y.type
-      when 'folder' then 0x016d
-      when 'file'   then 0x0124 end )       as closed_mode
-  from ( select
-      p.file_id as file_id,
-      m.mode    as mode,
-      p.type    as type
-    from      bb_paths  as p
-    left join metadata  as m on ( p.file_id = m.id )
-    where true
-      -- and n.id > 1
-      and p.type in ( 'folder', 'file' ) ) as y;
+    p.file_id                               as file_id,
+    case p.category
+      when 'R' then p.upper_bits | 0x1
+      when 'D' then p.upper_bits | 0x1
+      when 'F' then p.upper_bits | 0x1
+      else m.mode end                       as open_mode,
+    case p.category
+      when 'R' then p.upper_bits | 0x0
+      when 'D' then p.upper_bits | 0x0
+      when 'F' then p.upper_bits | 0x0
+      else m.mode end                       as closed_mode
+  from bb_paths as p
+  join metadata as m where ( p.file_id = m.id );
 
 -- ---------------------------------------------------------------------------------------------------------
 drop view if exists bb_list;
 create view if not exists bb_list as select
     m.id                                as file_id,
-    q.parent_id                         as parent_id,
-    q.type                              as type,
+    p.parent_id                         as parent_id,
+    p.type                              as type,
+    p.category                          as category,
+    p."(file_type)"                     as "(file_type)",
+    p.upper_bits                        as upper_bits,
     format( '0o%06.o', m.mode         ) as mode_o,
     format( '0o%06.o', s.open_mode    ) as open_mode_o,
     format( '0o%06.o', s.closed_mode  ) as closed_mode_o,
-    q.name                              as name,
-    q.path                              as path
-  from      bb_paths          as q
-  left join metadata          as m on ( q.file_id = m.id )
+    p.name                              as name,
+    p.path                              as path
+  from      bb_paths          as p
+  left join metadata          as m on ( p.file_id = m.id )
   left join bb_standard_modes as s using ( file_id )
-  order by q.path;
+  order by p.path;
 
 -- ---------------------------------------------------------------------------------------------------------
 drop table if exists bb_cids;
