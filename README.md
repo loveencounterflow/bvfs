@@ -14,6 +14,7 @@
     - [Closed and Opened Modes](#closed-and-opened-modes)
     - [Other](#other)
   - [File System Manipulation via SQL](#file-system-manipulation-via-sql)
+  - [See Also](#see-also)
   - [To Do](#to-do)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -155,6 +156,29 @@ p = p & 0b1111111_101_101_111 /* = 0o177557 = 0xff6f: folder, file closed */
 
 
 
+
+## See Also
+
+* [`sqlar` and `sqlarfs`](https://sqlite.org/sqlar/doc/trunk/README.md) provide a FUSE-mountable archiv
+  format in an SQLite DB file. On the pro side the implementation makes do with one table and an index by
+  storing the paths directly as strings in the DB and the structure is simple and transparent. On the con
+  side that also means that file manipulation tools can do very little beyond listing and reading files—for
+  example, creating directories using the POSIX `mkdir` command in the virtual file system is not supported,
+  a shortcoming that would have to be made up for by application code. Another shortcoming is that `ls` and
+  `cd` apparently do not show folder hierarchies (that are present in the database), which is unacceptable.
+
+* [`fossil fuefs`](https://sqlite.org/src/help?cmd=fusefs) is (confusingly) another FUSE file system from
+  the makers of SQLite. It should mount a FOSSIL VCS archive as file system. The description is hedging its
+  bets ("FuseFS typically only works on Linux, and then only on Linux systems that have the right kernel
+  drivers and have installed the appropriate support libraries") and in fact trying to `fossil fusefs
+  sqlar.fossil` produced `The FuseFS is not available in this build.`, and no further efforts were made.
+
+* [`presslabs/gitfs`](https://github.com/presslabs/gitfs) is (was) an effort to make git repos mountable as
+  file systems where any changes within that FS would be transparently committed and uploaded to a remote
+  repo. Unfortunately it's also very much [abandonware](https://github.com/presslabs/gitfs/issues) like [a
+  bunch of others](https://github.com/davesque/gitfuse).
+
+* https://github.com/131/sqlfs
 
 ## To Do
 
