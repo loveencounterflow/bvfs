@@ -154,6 +154,16 @@ p = p | 0b0000000_010_010_000 /* = 0o000220 = 0x0090: folder, file open */
 p = p & 0b1111111_101_101_111 /* = 0o177557 = 0xff6f: folder, file closed */
 ```
 
+* in **open** access mode,
+  * `R`' has `0o777` = `drwxrwxrwx` = `0x01ff` = `0b00000111111111` (owned by `root`)
+  * `D`' has `0o775` = `drwxrwxr-x` = `0x01fd` = `0b00000111111101` (owned by user)
+  * `F`' has `0o664` = `.rw-rw-r--` = `0x01b4` = `0b00000110110100` (owned by user)
+* in **closed** access mode,
+  * `R`' has `0o777` = `drwxrwxrwx` = `0x01ff` = `0b00000111111111` (owned by `root`)
+  * `D`' has `0o555` = `dr-xr-xr-x` = `0x016d` = `0b00000101101101` (owned by user)
+  * `F`' has `0o444` = `.r--r--r--` = `0x0124` = `0b00000100100100` (owned by user)
+
+
 
 
 
