@@ -142,14 +142,14 @@ drop view if exists bb_standard_modes;
 create view if not exists bb_standard_modes as select
     p.file_id                               as file_id,
     case p.category
-      when 'R' then p.upper_bits | 0x1
-      when 'D' then p.upper_bits | 0x1
-      when 'F' then p.upper_bits | 0x1
+      when 'R' then p.upper_bits | 0x01ff
+      when 'D' then p.upper_bits | 0x01fd
+      when 'F' then p.upper_bits | 0x01b4
       else m.mode end                       as open_mode,
     case p.category
-      when 'R' then p.upper_bits | 0x0
-      when 'D' then p.upper_bits | 0x0
-      when 'F' then p.upper_bits | 0x0
+      when 'R' then p.upper_bits | 0x01ff
+      when 'D' then p.upper_bits | 0x016d
+      when 'F' then p.upper_bits | 0x0124
       else m.mode end                       as closed_mode
   from bb_paths as p
   join metadata as m where ( p.file_id = m.id );
@@ -163,9 +163,16 @@ create view if not exists bb_list as select
     p.category                          as category,
     p."(file_type)"                     as "(file_type)",
     p.upper_bits                        as upper_bits,
+    m.mode                              as mode,
+    s.open_mode                         as open_mode,
+    s.closed_mode                       as closed_mode,
     format( '0o%06.o', m.mode         ) as mode_o,
     format( '0o%06.o', s.open_mode    ) as open_mode_o,
     format( '0o%06.o', s.closed_mode  ) as closed_mode_o,
+    case m.mode
+      when s.open_mode    then  'O'
+      when s.closed_mode  then  'C'
+      else                      '?' end as access,
     p.name                              as name,
     p.path                              as path
   from      bb_paths          as p
