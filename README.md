@@ -1,11 +1,11 @@
 
-# Bric-A-Brac File Mirror (to be renamed)
+# BVFS
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Bric-A-Brac File Mirror (to be renamed)](#bric-a-brac-file-mirror-to-be-renamed)
+- [BVFS](#bvfs)
   - [FUSE Driver](#fuse-driver)
   - [Adaptation of the SQLiteFS Driver](#adaptation-of-the-sqlitefs-driver)
   - [Additions to the SQLiteFS Driver](#additions-to-the-sqlitefs-driver)
@@ -21,7 +21,7 @@
 
 
 
-# Bric-A-Brac File Mirror (to be renamed)
+# BVFS
 
 ## FUSE Driver
 
