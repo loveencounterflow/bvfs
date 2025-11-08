@@ -1,7 +1,7 @@
 {
   "name": "bvfs",
   "version": "1.0.0",
-  "description": "",
+  "description": "the Bric-A-Brac Virtual File System, based on narumatt/sqlitefs, stores resources in a single-file SQLite DB",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
