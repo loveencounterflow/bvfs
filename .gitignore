@@ -2,3 +2,4 @@ bvfs.sqlite
 mount
 node_modules
 bvfs.sqlite.old
+bvfs.empty.dump.sql
