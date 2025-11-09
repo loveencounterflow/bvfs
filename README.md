@@ -20,8 +20,13 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 
-
 # BVFS
+
+* The Bric-A-Brac Virtual File System, based on [SQLiteFS](https://github.com/narumatt/sqlitefs), stores
+  local and remote resources in a single-file SQLite DB
+
+* internal file system structure below the mount point reflects the local (`file://`) or remote (`http://`,
+  `https://`) URL of origin
 
 ## FUSE Driver
 
