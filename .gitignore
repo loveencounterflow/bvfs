@@ -1,5 +1,5 @@
 bvfs.db
 mount
 node_modules
-bvfs.sqlite.old
+bvfs.db.old
 bvfs.empty.dump.sql
