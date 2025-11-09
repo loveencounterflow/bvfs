@@ -1,4 +1,4 @@
-bvfs.sqlite
+bvfs.db
 mount
 node_modules
 bvfs.sqlite.old
