@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      bricabrac-sfmodules:
+        specifier: ^0.19.0
+        version: 0.19.0
       effstring:
         specifier: ^1.4.0
         version: 1.4.0
@@ -31,6 +34,9 @@ packages:
     resolution: {integrity: sha512-Bq3SmSpyFHaWjPk8If9yc6svM8c56dB5BAtW4Qbw5jHTwwXXcTLoRMkpDJp6VL0XzlWaCHTXrkFURMYmD0sLqg==}
     engines: {node: '>=12'}
 
+  bricabrac-sfmodules@0.19.0:
+    resolution: {integrity: sha512-QHSP54lAp9eRknGyfxnTpxMX1WRzzDkL6+1+G+CeBGw+sYqbrmEOy0wPfMgfzWknfxBEsbkN5VWtmg0/R3T5QQ==}
+
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
@@ -44,6 +50,10 @@ packages:
 
   emoji-regex@10.6.0:
     resolution: {integrity: sha512-toUI84YS5YmxW219erniWD0CIVOo46xGKColeNQRgOzDorgBi1v4D71/OFzgD9GO2UGKIv1C3Sp8DAn0+j5w7A==}
+
+  env-paths@3.0.0:
+    resolution: {integrity: sha512-dtJUTepzMW3Lm/NPxRf3wP4642UWhjL2sQxc+ym2YMj1m/H2zDNQOlezafzkHwn6sMstjHTwG6iQQsctDW/b1A==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   execa@9.6.0:
     resolution: {integrity: sha512-jpWzZ1ZhwUmeWRhS7Qv3mhpOhLfwI+uAX4e5fOcXqwMR7EcJ0pj2kV1CVzHVMX/LphnKWD3LObjZCoJ71lKpHw==}
@@ -91,6 +101,9 @@ packages:
 
   multimix@5.0.0:
     resolution: {integrity: sha512-N9cdGSDDD7kxOV7R6e4iZqsHTZ4F4iiSDWqMcVqx4gEH6HBtRXav39Gj3fgT1YqvBcwPCQuf0Oa5R2cDaLWK8A==}
+
+  normalize-function-arguments@0.2.0:
+    resolution: {integrity: sha512-iICxJ8rWBffB807XWlqvvIgjlL2vvf3M+6pPkPQ/t8++1NKH0fbKvqEZuEx1z3fV+DrwK0n/TBzvljymT7tEow==}
 
   npm-run-path@6.0.0:
     resolution: {integrity: sha512-9qny7Z9DsQU8Ou39ERsPU4OZQlSTP47ShQzuKZ6PRXpYLtIFgl/DEBYEXKlvcEa+9tHVcK8CF81Y2V72qaZhWA==}
@@ -157,6 +170,11 @@ snapshots:
 
   ansi-regex@6.2.2: {}
 
+  bricabrac-sfmodules@0.19.0:
+    dependencies:
+      env-paths: 3.0.0
+      normalize-function-arguments: 0.2.0
+
   cross-spawn@7.0.6:
     dependencies:
       path-key: 3.1.1
@@ -172,6 +190,8 @@ snapshots:
       string-width: 7.2.0
 
   emoji-regex@10.6.0: {}
+
+  env-paths@3.0.0: {}
 
   execa@9.6.0:
     dependencies:
@@ -220,6 +240,10 @@ snapshots:
   loupe@3.2.1: {}
 
   multimix@5.0.0: {}
+
+  normalize-function-arguments@0.2.0:
+    dependencies:
+      loupe: 3.2.1
 
   npm-run-path@6.0.0:
     dependencies:
