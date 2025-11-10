@@ -136,6 +136,8 @@ create view if not exists bb_paths as with recursive
     from bb_path_tree as q
     left join bb_fs_object_types as e on ( q.file_type = e.kind )
     join metadata as m on ( q.file_id = m.id );
+-- .........................................................................................................
+select * from bb_paths where false; -- Gaps & Islands ESSFRI
 
 -- ---------------------------------------------------------------------------------------------------------
 drop view if exists bb_standard_modes;
@@ -153,6 +155,8 @@ create view if not exists bb_standard_modes as select
       else m.mode end                       as closed_mode
   from bb_paths as p
   join metadata as m where ( p.file_id = m.id );
+-- .........................................................................................................
+select * from bb_standard_modes where false; -- Gaps & Islands ESSFRI
 
 -- ---------------------------------------------------------------------------------------------------------
 drop view if exists bb_list;
@@ -179,6 +183,8 @@ create view if not exists bb_list as select
   left join metadata          as m on ( p.file_id = m.id )
   left join bb_standard_modes as s using ( file_id )
   order by p.path;
+-- .........................................................................................................
+select * from bb_list where false; -- Gaps & Islands ESSFRI
 
 -- ---------------------------------------------------------------------------------------------------------
 drop table if exists bb_cids;
@@ -190,3 +196,5 @@ create table if not exists bb_cids (
 
 -- select * from bb_standard_modes;
 -- select * from bb_list;
+
+
