@@ -20,7 +20,7 @@ GUY                       = require 'guy'
   reverse
   log     }               = GUY.trm
 #-----------------------------------------------------------------------------------------------------------
-SFMODULES                     = require '../../../apps/bricabrac-sfmodules'
+SFMODULES                     = require 'bricabrac-sfmodules'
 { type_of,                  } = SFMODULES.unstable.require_type_of()
 { Dbric,
   SQL,
@@ -32,10 +32,12 @@ PATH                          = require 'node:path'
 
 
 #===========================================================================================================
-shell_cfg_template:
-  lines:              false
+shell_cfg_template =
+  lines:              false # whether to return lists of lines for stdout, stderr
+  reject:             true  # `true`: throw errors, `false`: return errors
   #.........................................................................................................
-  only_stdout:        false
+  ### extensions: ###
+  only_stdout:        false # whether to only return `stdout`
   decode_octal:       false
 
 
@@ -49,27 +51,39 @@ class Shell
 
   #---------------------------------------------------------------------------------------------------------
   _validate_call_arguments: ( cfg, cmd, parameters... ) ->
-    # whisper 'Ωbvfs__32', { cfg, cmd, parameters, }
+    # whisper 'Ωbvfs___1', { cfg, cmd, parameters, }
     switch type = type_of cfg
       when 'text'
         if cmd is undefined then  [ cfg, cmd, parameters..., ] = [ {}, cfg,       parameters..., ]
         else                      [ cfg, cmd, parameters..., ] = [ {}, cfg, cmd,  parameters..., ]
       when 'pod'  then null
-      else throw new Error "Ωbvfs__33 expected a pod or a text, got a #{type}"
+      else throw new Error "Ωbvfs___2 expected a pod or a text, got a #{type}"
     #.......................................................................................................
     unless ( type = type_of cmd ) is 'text'
-      throw new Error "Ωbvfs__34 expected a text, got a #{type}"
+      throw new Error "Ωbvfs___3 expected a text, got a #{type}"
     #.......................................................................................................
     cfg = { @cfg..., cfg..., }
-    # info 'Ωbvfs__35', { cfg, cmd, parameters, }
+    # info 'Ωbvfs___4', { cfg, cmd, parameters, }
     return { cfg, cmd, parameters, }
 
   #---------------------------------------------------------------------------------------------------------
   call: ( cfg, cmd, parameters... ) ->
     { cfg, cmd, parameters, } = @_validate_call_arguments cfg, cmd, parameters...
-    # debug 'Ωbvfs__36', cfg
-    R         = execaSync cmd, parameters, cfg
-    # debug 'Ωbvfs__37', R
+    # debug 'Ωbvfs___5', cfg
+    # cfg.reject = false
+    try
+      R         = execaSync cmd, parameters, cfg
+    catch error
+      debug 'Ωbvfs___6', rpr R?.stderr
+      debug 'Ωbvfs___7', 'stderr          ', rpr error.stderr
+      debug 'Ωbvfs___8', 'name            ', rpr error.name
+      debug 'Ωbvfs___9', 'code            ', rpr error.code
+      debug 'Ωbvfs__10', 'exitCode        ', rpr error.exitCode
+      debug 'Ωbvfs__11', 'message         ', rpr error.message
+      debug 'Ωbvfs__12', 'shortMessage    ', rpr error.shortMessage
+      debug 'Ωbvfs__13', 'originalMessage ', rpr error.originalMessage
+      debug 'Ωbvfs__14', 'cause           ', rpr error.cause
+      throw error
     # if cfg.decode_octal
     #   if cfg.lines then R.stdout = ( decode_octal line for line in R.stdout )
     #   else              R.stdout = decode_octal R.stdout
