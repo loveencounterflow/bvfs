@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       bricabrac-sfmodules:
-        specifier: ^0.19.0
-        version: 0.19.0
+        specifier: ^0.20.0
+        version: 0.20.0
       effstring:
         specifier: ^1.4.0
         version: 1.4.0
@@ -34,8 +34,8 @@ packages:
     resolution: {integrity: sha512-Bq3SmSpyFHaWjPk8If9yc6svM8c56dB5BAtW4Qbw5jHTwwXXcTLoRMkpDJp6VL0XzlWaCHTXrkFURMYmD0sLqg==}
     engines: {node: '>=12'}
 
-  bricabrac-sfmodules@0.19.0:
-    resolution: {integrity: sha512-QHSP54lAp9eRknGyfxnTpxMX1WRzzDkL6+1+G+CeBGw+sYqbrmEOy0wPfMgfzWknfxBEsbkN5VWtmg0/R3T5QQ==}
+  bricabrac-sfmodules@0.20.0:
+    resolution: {integrity: sha512-KUv6oVE8HeFvUV1/nmF3oFdZd4vuQS+OMEeBwCGYFZ8m+gCQzonebOQcbnFIsu6JGAz4/lrFgn8dFw0im9Pb/Q==}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -170,7 +170,7 @@ snapshots:
 
   ansi-regex@6.2.2: {}
 
-  bricabrac-sfmodules@0.19.0:
+  bricabrac-sfmodules@0.20.0:
     dependencies:
       env-paths: 3.0.0
       normalize-function-arguments: 0.2.0
