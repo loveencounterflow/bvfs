@@ -14,6 +14,7 @@
     "bricabrac-sfmodules": "^0.20.0",
     "effstring": "^1.4.0",
     "execa": "^9.6.0",
-    "guy": "^14.2.0"
+    "guy": "^14.2.0",
+    "letsfreezethat": "^3.1.0"
   }
 }
