@@ -200,4 +200,7 @@ p = p & 0b1111111_101_101_111 /* = 0o177557 = 0xff6f: folder, file closed */
 * **`[—]`** do not modify source code of [SQLiteFS](https://github.com/narumatt/sqlitefs); instead, run SQL
   to change `atime`s as seen fit for purpose prior to `sqlite3 '.dump'`ing the DB
 
+* **`[—]`** possible to generate files in the DB in a line-by-line fashion that then appear in the file tree
+  when the BVFS is mounted?
+
 
