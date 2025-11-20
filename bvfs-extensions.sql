@@ -254,8 +254,9 @@ create table if not exists bv_cids (
 --   -- primary key ( file_id, line_nr, chunk_nr )
 -- select * from bv_strips where false;
 
-drop view if exists bv_1;
-create view bv_1 as select
+-- ---------------------------------------------------------------------------------------------------------
+drop view if exists _bv_lines_1;
+create view _bv_lines_1 as select
     md.id                                       as file_id,
     coalesce( dt.block_num, 0 )                 as block_num,
     md.size                                     as size,
@@ -265,14 +266,13 @@ create view bv_1 as select
   left join data      as dt on ( md.id = dt.file_id )
   left join bv_paths  as pt using ( file_id )
   where pt.type in ( 'file' )
-  window w1 as ( partition by dt.file_id order by dt.block_num )
-  order by block_num
-  ;
+  window w1 as ( partition by dt.file_id order by dt.block_num );
 
-select * from bv_1 where false;
+select * from _bv_lines_1 where false;
 
-drop view if exists bv_2;
-create view bv_2 as select
+-- ---------------------------------------------------------------------------------------------------------
+drop view if exists _bv_lines_2;
+create view _bv_lines_2 as select
     b1.file_id                                  as file_id,
     b1.block_num                                as block_num,
     b1.size                                     as size,
@@ -280,11 +280,11 @@ create view bv_2 as select
     case when b1.delta_byte_count < 4096
       then substring( b1.data, 1, b1.delta_byte_count ) -- NOTE `substring( blob )` returns blob
       else b1.data end                          as data
-  from bv_1 as b1
-  order by block_num;
-select * from bv_2 where false;
+  from _bv_lines_1 as b1;
+select * from _bv_lines_2 where false;
 
 
+-- ---------------------------------------------------------------------------------------------------------
 select
     file_id,
     p.name,
@@ -295,10 +295,10 @@ select
     json_quote( cast( substring( data, length( data ) - 309 ) as text ) )   as tail,
     -- json_quote( cast( data as text ) )                 as data,
     length( data )                                  as length
-  from bv_2
+  from _bv_lines_2
   join bv_paths as p using ( file_id )
   order by file_id, block_num;
-  -- from bv_2 where file_id = 3;
+  -- from _bv_lines_2 where file_id = 3;
 
 select
     file_id,
@@ -306,4 +306,4 @@ select
     size,
     delta_byte_count,
     substring( data, 1, 50 )
-  from bv_1 order by file_id;
+  from _bv_lines_1 order by file_id;
