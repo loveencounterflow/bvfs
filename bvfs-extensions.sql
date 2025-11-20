@@ -266,7 +266,8 @@ with recursive split( n, strip, eol, remainder ) as (
     0,
     x'',
     x'',
-    cast( 'arc|bo|cy|dean||eps|' || '|' as blob )
+    -- cast( 'alpha|beta|gamma|delta||zeta|' || '|' as blob )
+    cast( 'alpha|beta|gamma|delta||zeta|' as blob )
     -- cast( '|' || '|' as blob )
   union all
   select
@@ -276,11 +277,12 @@ with recursive split( n, strip, eol, remainder ) as (
     case instr( remainder, cast( '|' as blob ) ) when length( remainder ) then x'' else cast( '|' as blob ) end,
     substring( remainder, instr( remainder, cast( '|' as blob ) ) + 1 )
   from split as s
-  where remainder != '' )
+  where remainder != '' and instr( remainder, cast( '|' as blob ) ) >= 0 )
 select
   n,
   json_quote( cast( strip as text ) ) as strip,
   json_quote( cast( eol   as text ) ) as eol,
+  json_quote( cast( remainder   as text ) ) as eol,
   length( strip ),
   typeof( strip ),
   typeof( eol )
@@ -293,3 +295,32 @@ where true
 
 
 
+with recursive
+input( x )      as ( values( 'alpha
+beta
+gamma
+delta
+
+zeta' ) ),
+delimiter( d )  as ( values( x'0a' ) ),
+split( line_nr, strip, eol, remainder ) as (
+  select
+    1,
+    substr( x, 1, case instr( x, d ) when 0 then length( x ) else instr( x, d ) - 1 end ),
+    case instr( x, d ) when 0 then x'' else substr( x, instr( x, d ), length( d ) ) end,
+    case instr( x, d ) when 0 then null else substr( x, instr( x, d ) + length( d ) ) end
+  from input, delimiter
+  union all
+  select
+    line_nr + 1,
+    substr( remainder, 1, case instr( remainder, d ) when 0 then length( remainder ) else instr( remainder ,d ) - 1 end ),
+    case instr( remainder, d ) when 0 then x'' else substr( remainder, instr( remainder, d ), length( d ) ) end,
+    case instr( remainder, d ) when 0 then null else substr( remainder, instr( remainder,d ) + length( d ) ) end
+  from split, delimiter
+  where remainder is not null
+)
+select
+    line_nr,
+    json_quote( cast( strip as text ) ) as strip,
+    json_quote( cast( eol as text ) ) as eol
+  from split;
