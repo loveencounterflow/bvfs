@@ -194,66 +194,6 @@ create table if not exists bv_cids (
   foreign key ( file_id ) references metadata( id ) on delete cascade,
   primary key ( file_id ) );
 
--- -- ---------------------------------------------------------------------------------------------------------
--- drop table if exists bv_strips;
--- create table bv_strips (
---   -- ...................................................................................................
---   file_id     integer not null,
---   line_nr     integer not null,
---   block_num   integer not null,
---   -- ...................................................................................................
---   --  This table contains the data to turn the blobs in `data( file_id, block_num, data )` into lines
---   --  which enables linewise processing in unmounted filesystems. Each line consists of a sequence of one or
---   --  more 'strips'; each strip may contain zero or more text bytes and zero or more line-ending (EOL) bytes
---   --  (commonly used ones are LF (`\n`), CR (`\r`) and CRLF (`\r\n`), i.e. bytes `\x0a`, `\x0d`,
---   --  `\x0d\x0a`).
---   --
---   --
---   --  Properties:
---   --  * An empty line has `text_length` zero.
---   --  * The last line in a file may have `eol_length` zero.
---   --  * An empty file gets a single entry with `text_length` and `eol_length` zero.
---   --  * Two adjacent strips in the same block always always represent two adjacent lines of the same file.
---   --  * In every pair of adjacent strips in the same block the first one cannot have `eol_length` zero.
---   --  * There can only be up to one strip per line per block.
---   --  * All strips that belong to the same line must be in adjacent blocks.
---   --  * In every pair of consecutive strips for the same line the first must include the last byte of one
---   --    block and the second must include the first byte of the next block.
---   --  * Total strip length is `length = text_length + eol_length`
---   --  * The next strip's `start` index is either
---   --    * in this block at `start + length`
---   --    * in the next block at `start + length`
---   --
---   start       integer not null, -- 0-based (?) index to first byte (in this block)
---   text_length integer not null, -- length of text excluding newline
---   eol_length  integer not null, -- length of newline characters (0 to 2)
---   length      integer not null computed always as ( text_length + eol_length ) virtual,
---   -- byte_count -- cumulative length *after* strip
---   /*
-
---   ^ indicate newline characters
---   ° indicate null bytes
---                                                           file size: 31
---                                                           block   start    text     eol   byte_count
---   abc^                                                        1       0       3       1            4
---       def^                                                    1       4       3       1            8
---           a_somewhat_longer_line°°°°°°°°°°                    1       8       2       0           10
---                                                               2       0      10       0           20
---                                                               3       0      10       0           30
---                                                               4       0       0       1           31
---   |123456789|123456789|123456789|123456789|123456789
---   | block 1 | block 2 | block 3 | block 4 | block 5
---   */
---   -- ...................................................................................................
---   foreign key ( file_id, block_num  ) references data ( file_id, block_num ),
---   primary key ( file_id, line_nr, block_num )
---   );
---   -- dskey     text    not null,
---   -- chunk_nr  integer not null,
---   -- foreign key ( dskey               ) references datasources ( dskey ),
---   -- primary key ( file_id, line_nr, chunk_nr )
--- select * from bv_strips where false;
-
 -- ---------------------------------------------------------------------------------------------------------
 drop view if exists _bv_lines_1;
 create view _bv_lines_1 as select
@@ -267,7 +207,6 @@ create view _bv_lines_1 as select
   left join bv_paths  as pt using ( file_id )
   where pt.type in ( 'file' )
   window w1 as ( partition by dt.file_id order by dt.block_num );
-
 select * from _bv_lines_1 where false;
 
 -- ---------------------------------------------------------------------------------------------------------
@@ -275,13 +214,24 @@ drop view if exists _bv_lines_2;
 create view _bv_lines_2 as select
     b1.file_id                                  as file_id,
     b1.block_num                                as block_num,
-    b1.size                                     as size,
-    b1.delta_byte_count                         as delta_byte_count,
+    -- b1.size                                     as size,
+    -- b1.delta_byte_count                         as delta_byte_count,
     case when b1.delta_byte_count < 4096
       then substring( b1.data, 1, b1.delta_byte_count ) -- NOTE `substring( blob )` returns blob
       else b1.data end                          as data
   from _bv_lines_1 as b1;
 select * from _bv_lines_2 where false;
+
+-- ---------------------------------------------------------------------------------------------------------
+drop view if exists _bv_lines_3;
+create view _bv_lines_3 as select
+    b2.file_id                                  as file_id,
+    b2.block_num                                as block_num,
+    -- b2.size                                     as size,
+    -- b2.delta_byte_count                         as delta_byte_count,
+
+  from _bv_lines_2 as b2;
+select * from _bv_lines_3 where false;
 
 
 -- ---------------------------------------------------------------------------------------------------------
@@ -289,11 +239,11 @@ select
     file_id,
     p.name,
     block_num,
-    size,
-    delta_byte_count,
-    json_quote( cast( substring( data, 1, 309 ) as text ) )                 as head,
-    json_quote( cast( substring( data, length( data ) - 309 ) as text ) )   as tail,
-    -- json_quote( cast( data as text ) )                 as data,
+    -- size,
+    -- delta_byte_count,
+    quote( cast( substring( data, 1, 309 ) as text ) )                 as head,
+    quote( cast( substring( data, length( data ) - 309 ) as text ) )   as tail,
+    -- quote( cast( data as text ) )                 as data,
     length( data )                                  as length
   from _bv_lines_2
   join bv_paths as p using ( file_id )
@@ -303,7 +253,37 @@ select
 select
     file_id,
     block_num,
-    size,
-    delta_byte_count,
+    -- size,
+    -- delta_byte_count,
     substring( data, 1, 50 )
   from _bv_lines_1 order by file_id;
+
+
+with recursive split( n, strip, eol, remainder ) as (
+    select
+        0,
+        x'',
+        x'',
+        cast( 'arc|bo|cy|dean||eps|' || '|' as blob )
+        -- cast( '|' || '|' as blob )
+    union all
+    select
+        n + 1,
+        substring( remainder, 1, instr( remainder, cast( '|' as blob ) ) - 1 ), -- `- 0` keeps eol, `- 1` tosses it
+        -- substring( remainder, instr( remainder, cast( '|' as blob ) ), 1 ),
+        case instr( remainder, cast( '|' as blob ) ) when length( remainder ) then x'' else cast( '|' as blob ) end,
+        substring( remainder, instr( remainder, cast( '|' as blob ) ) + 1 )
+    from split as s
+    where remainder != ''
+)
+select n, strip, length( strip ), eol, typeof( strip ), typeof( eol )
+from split
+where true
+  and ( strip != '' )
+  and ( n > 0 )
+;
+
+
+
+
+
