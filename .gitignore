@@ -3,3 +3,5 @@ mount
 node_modules
 bvfs.db.old
 bvfs.empty.dump.sql
+bvfs.db-shm
+bvfs.db-wal
