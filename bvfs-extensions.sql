@@ -250,6 +250,7 @@ select
   order by file_id, block_num;
   -- from _bv_lines_2 where file_id = 3;
 
+-- ---------------------------------------------------------------------------------------------------------
 select
     file_id,
     block_num,
@@ -259,29 +260,34 @@ select
   from _bv_lines_1 order by file_id;
 
 
+-- ---------------------------------------------------------------------------------------------------------
 with recursive split( n, strip, eol, remainder ) as (
-    select
-        0,
-        x'',
-        x'',
-        cast( 'arc|bo|cy|dean||eps|' || '|' as blob )
-        -- cast( '|' || '|' as blob )
-    union all
-    select
-        n + 1,
-        substring( remainder, 1, instr( remainder, cast( '|' as blob ) ) - 1 ), -- `- 0` keeps eol, `- 1` tosses it
-        -- substring( remainder, instr( remainder, cast( '|' as blob ) ), 1 ),
-        case instr( remainder, cast( '|' as blob ) ) when length( remainder ) then x'' else cast( '|' as blob ) end,
-        substring( remainder, instr( remainder, cast( '|' as blob ) ) + 1 )
-    from split as s
-    where remainder != ''
-)
-select n, strip, length( strip ), eol, typeof( strip ), typeof( eol )
+  select
+    0,
+    x'',
+    x'',
+    cast( 'arc|bo|cy|dean||eps|' || '|' as blob )
+    -- cast( '|' || '|' as blob )
+  union all
+  select
+    n + 1,
+    substring( remainder, 1, instr( remainder, cast( '|' as blob ) ) - 1 ), -- `- 0` keeps eol, `- 1` tosses it
+    -- substring( remainder, instr( remainder, cast( '|' as blob ) ), 1 ),
+    case instr( remainder, cast( '|' as blob ) ) when length( remainder ) then x'' else cast( '|' as blob ) end,
+    substring( remainder, instr( remainder, cast( '|' as blob ) ) + 1 )
+  from split as s
+  where remainder != '' )
+select
+  n,
+  json_quote( cast( strip as text ) ) as strip,
+  json_quote( cast( eol   as text ) ) as eol,
+  length( strip ),
+  typeof( strip ),
+  typeof( eol )
 from split
 where true
   and ( strip != '' )
-  and ( n > 0 )
-;
+  and ( n > 0 );
 
 
 
