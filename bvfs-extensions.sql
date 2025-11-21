@@ -222,17 +222,6 @@ create view _bv_lines_2 as select
   from _bv_lines_1 as b1;
 select * from _bv_lines_2 where false;
 
--- ---------------------------------------------------------------------------------------------------------
-drop view if exists _bv_lines_3;
-create view _bv_lines_3 as select
-    b2.file_id                                  as file_id,
-    b2.block_num                                as block_num,
-    -- b2.size                                     as size,
-    -- b2.delta_byte_count                         as delta_byte_count,
-
-  from _bv_lines_2 as b2;
-select * from _bv_lines_3 where false;
-
 
 -- ---------------------------------------------------------------------------------------------------------
 select
