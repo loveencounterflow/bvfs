@@ -250,35 +250,39 @@ select
 
 
 -- ---------------------------------------------------------------------------------------------------------
-with recursive
--- input( x )      as ( values( 'alpha
--- beta
--- gamma
--- delta
+drop view if exists _bv_lines_3;
+create view _bv_lines_3 as with recursive
+  input( file_id, block_num, x ) as ( select file_id, block_num, data from _bv_lines_2 order by file_id, block_num ),
+  delimiter( d )  as ( values( x'0a' ) ),
+  split( file_id, block_num, strip_nr, strip, eol, remainder ) as (
+    select
+      file_id,
+      block_num,
+      1,
+      substr( x, 1, case instr( x, d ) when 0 then length( x ) else instr( x, d ) - 1 end ),
+      case instr( x, d ) when 0 then x'' else substr( x, instr( x, d ), length( d ) ) end,
+      case instr( x, d ) when 0 then null else substr( x, instr( x, d ) + length( d ) ) end
+    from input, delimiter
+    union all
+    select
+      file_id,
+      block_num,
+      strip_nr + 1,
+      substr( remainder, 1, case instr( remainder, d ) when 0 then length( remainder ) else instr( remainder ,d ) - 1 end ),
+      case instr( remainder, d ) when 0 then x'' else substr( remainder, instr( remainder, d ), length( d ) ) end,
+      case instr( remainder, d ) when 0 then null else substr( remainder, instr( remainder,d ) + length( d ) ) end
+    from split, delimiter
+    where remainder is not null
+  )
+  select
+      file_id,
+      block_num,
+      strip_nr,
+      strip,
+      eol
+    from split
+    order by file_id, block_num, strip_nr;
 
--- zeta' ) ),
-input( file_id, block_num, x ) as ( select file_id, block_num, data from _bv_lines_2 order by file_id, block_num ),
-delimiter( d )  as ( values( x'0a' ) ),
-split( file_id, block_num, strip_nr, strip, eol, remainder ) as (
-  select
-    file_id,
-    block_num,
-    1,
-    substr( x, 1, case instr( x, d ) when 0 then length( x ) else instr( x, d ) - 1 end ),
-    case instr( x, d ) when 0 then x'' else substr( x, instr( x, d ), length( d ) ) end,
-    case instr( x, d ) when 0 then null else substr( x, instr( x, d ) + length( d ) ) end
-  from input, delimiter
-  union all
-  select
-    file_id,
-    block_num,
-    strip_nr + 1,
-    substr( remainder, 1, case instr( remainder, d ) when 0 then length( remainder ) else instr( remainder ,d ) - 1 end ),
-    case instr( remainder, d ) when 0 then x'' else substr( remainder, instr( remainder, d ), length( d ) ) end,
-    case instr( remainder, d ) when 0 then null else substr( remainder, instr( remainder,d ) + length( d ) ) end
-  from split, delimiter
-  where remainder is not null
-)
 select
     file_id,
     block_num,
@@ -288,5 +292,6 @@ select
     json_quote( cast( eol as text ) ) as eol,
     typeof( strip ),
     typeof( eol )
-  from split
+  from _bv_lines_3
   order by file_id, block_num, strip_nr;
+
