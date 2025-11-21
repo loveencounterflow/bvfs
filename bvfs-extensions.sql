@@ -261,50 +261,19 @@ select
 
 
 -- ---------------------------------------------------------------------------------------------------------
-with recursive split( n, strip, eol, remainder ) as (
-  select
-    0,
-    x'',
-    x'',
-    -- cast( 'alpha|beta|gamma|delta||zeta|' || '|' as blob )
-    cast( 'alpha|beta|gamma|delta||zeta|' as blob )
-    -- cast( '|' || '|' as blob )
-  union all
-  select
-    n + 1,
-    substring( remainder, 1, instr( remainder, cast( '|' as blob ) ) - 1 ), -- `- 0` keeps eol, `- 1` tosses it
-    -- substring( remainder, instr( remainder, cast( '|' as blob ) ), 1 ),
-    case instr( remainder, cast( '|' as blob ) ) when length( remainder ) then x'' else cast( '|' as blob ) end,
-    substring( remainder, instr( remainder, cast( '|' as blob ) ) + 1 )
-  from split as s
-  where remainder != '' and instr( remainder, cast( '|' as blob ) ) >= 0 )
-select
-  n,
-  json_quote( cast( strip as text ) ) as strip,
-  json_quote( cast( eol   as text ) ) as eol,
-  json_quote( cast( remainder   as text ) ) as eol,
-  length( strip ),
-  typeof( strip ),
-  typeof( eol )
-from split
-where true
-  and ( strip != '' )
-  and ( n > 0 );
-
-
-
-
-
 with recursive
-input( x )      as ( values( 'alpha
-beta
-gamma
-delta
+-- input( x )      as ( values( 'alpha
+-- beta
+-- gamma
+-- delta
 
-zeta' ) ),
+-- zeta' ) ),
+input( file_id, block_num, x ) as ( select file_id, block_num, data from _bv_lines_2 order by file_id, block_num ),
 delimiter( d )  as ( values( x'0a' ) ),
-split( line_nr, strip, eol, remainder ) as (
+split( file_id, block_num, strip_nr, strip, eol, remainder ) as (
   select
+    file_id,
+    block_num,
     1,
     substr( x, 1, case instr( x, d ) when 0 then length( x ) else instr( x, d ) - 1 end ),
     case instr( x, d ) when 0 then x'' else substr( x, instr( x, d ), length( d ) ) end,
@@ -312,7 +281,9 @@ split( line_nr, strip, eol, remainder ) as (
   from input, delimiter
   union all
   select
-    line_nr + 1,
+    file_id,
+    block_num,
+    strip_nr + 1,
     substr( remainder, 1, case instr( remainder, d ) when 0 then length( remainder ) else instr( remainder ,d ) - 1 end ),
     case instr( remainder, d ) when 0 then x'' else substr( remainder, instr( remainder, d ), length( d ) ) end,
     case instr( remainder, d ) when 0 then null else substr( remainder, instr( remainder,d ) + length( d ) ) end
@@ -320,7 +291,13 @@ split( line_nr, strip, eol, remainder ) as (
   where remainder is not null
 )
 select
-    line_nr,
-    json_quote( cast( strip as text ) ) as strip,
-    json_quote( cast( eol as text ) ) as eol
-  from split;
+    file_id,
+    block_num,
+    strip_nr,
+    -- json_quote( cast( ( coalesce( strip, x'' ) ) as text ) ) as strip,
+    json_quote( cast( ( strip ) as text ) ) as strip,
+    json_quote( cast( eol as text ) ) as eol,
+    typeof( strip ),
+    typeof( eol )
+  from split
+  order by file_id, block_num, strip_nr;
