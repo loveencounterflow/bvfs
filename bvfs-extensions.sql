@@ -159,6 +159,9 @@ create view if not exists bv_standard_modes as select
 -- .........................................................................................................
 select * from bv_standard_modes where false; -- Gaps & Islands ESSFRI
 
+/*
+-- =========================================================================================================
+-- READ/WRITE MANAGEMENT
 -- ---------------------------------------------------------------------------------------------------------
 drop view if exists bv_list;
 create view if not exists bv_list as select
@@ -194,6 +197,7 @@ create table if not exists bv_cids (
     cid         text,
   foreign key ( file_id ) references metadata( id ) on delete cascade,
   primary key ( file_id ) );
+*/
 
 -- ---------------------------------------------------------------------------------------------------------
 drop view if exists _bv_lines_1;
@@ -261,45 +265,9 @@ create view _bv_lines_3 as with recursive
 -- .........................................................................................................
 select * from _bv_lines_3 where false; -- Gaps & Islands ESSFRI
 
--- ---------------------------------------------------------------------------------------------------------
-select
-    file_id,
-    p.name,
-    block_num,
-    -- size,
-    -- delta_byte_count,
-    quote( cast( substring( data, 1, 309 ) as text ) )                 as head,
-    quote( cast( substring( data, length( data ) - 309 ) as text ) )   as tail,
-    -- quote( cast( data as text ) )                 as data,
-    length( data )                                  as length
-  from _bv_lines_2
-  join bv_paths as p using ( file_id )
-  order by file_id, block_num;
-  -- from _bv_lines_2 where file_id = 3;
-
--- ---------------------------------------------------------------------------------------------------------
-select
-    file_id,
-    block_num,
-    -- size,
-    -- delta_byte_count,
-    substring( data, 1, 50 )
-  from _bv_lines_1 order by file_id;
-
--- ---------------------------------------------------------------------------------------------------------
-select
-    file_id,
-    block_num,
-    strip_nr,
-    -- json_quote( cast( ( coalesce( strip, x'' ) ) as text ) ) as strip,
-    json_quote( cast( ( strip ) as text ) ) as strip,
-    json_quote( cast( eol as text ) ) as eol,
-    typeof( strip ),
-    typeof( eol )
-  from _bv_lines_3
-  order by file_id, block_num, strip_nr;
-
--- ---------------------------------------------------------------------------------------------------------
+/*
+-- =========================================================================================================
+  TESTING
 -- ---------------------------------------------------------------------------------------------------------
 drop table if exists bv_strips;
 create table bv_strips (
@@ -354,6 +322,7 @@ insert into _bv_lines_matcher ( file_id, line_nr, line, eol ) values
 -- select file_id, line_nr, line, json_quote( eol ) from _bv_lines_matcher;
 select file_id, line_nr, line, eol from _bv_lines_matcher;
 .mode qbox --wrap 100 --wordwrap off
+*/
 
 -- ---------------------------------------------------------------------------------------------------------
 -- thx to https://chatgpt.com/s/t_692199a5be58819195de8b63a76e74fb
@@ -419,20 +388,11 @@ create view _bv_lines_4 as with recursive
 
 -- ---------------------------------------------------------------------------------------------------------
 drop view if exists bv_lines;
--- create view bv_lines as select
---     bl.file_id,
---     bl.line_nr,
---     bl.line,
---     bl.eol
---   from _bv_lines_4 as bl
---   right join metadata as md on ( bl.file_id = md.id )
---   order by file_id, line_nr;
-
 create view bv_lines as select
     bp.file_id                as file_id,
     coalesce( bl.line_nr, 1 ) as line_nr,
     bp.name                   as name,
-    md.size                   as size,
+    -- md.size                   as size,
     coalesce( bl.line, ''  )  as line,
     coalesce( bl.eol, ''   )  as eol
   from metadata as md
@@ -444,9 +404,48 @@ create view bv_lines as select
   order by file_id, line_nr;
 
 
-.mode box --wrap off --quote
+-- -- ---------------------------------------------------------------------------------------------------------
+-- select
+--     file_id,
+--     p.name,
+--     block_num,
+--     -- size,
+--     -- delta_byte_count,
+--     quote( cast( substring( data, 1, 309 ) as text ) )                 as head,
+--     quote( cast( substring( data, length( data ) - 309 ) as text ) )   as tail,
+--     -- quote( cast( data as text ) )                 as data,
+--     length( data )                                  as length
+--   from _bv_lines_2
+--   join bv_paths as p using ( file_id )
+--   order by file_id, block_num;
+--   -- from _bv_lines_2 where file_id = 3;
+
+-- -- ---------------------------------------------------------------------------------------------------------
+-- select
+--     file_id,
+--     block_num,
+--     -- size,
+--     -- delta_byte_count,
+--     substring( data, 1, 50 )
+--   from _bv_lines_1 order by file_id;
+
+-- -- ---------------------------------------------------------------------------------------------------------
+-- select
+--     file_id,
+--     block_num,
+--     strip_nr,
+--     -- json_quote( cast( ( coalesce( strip, x'' ) ) as text ) ) as strip,
+--     json_quote( cast( ( strip ) as text ) ) as strip,
+--     json_quote( cast( eol as text ) ) as eol,
+--     typeof( strip ),
+--     typeof( eol )
+--   from _bv_lines_3
+--   order by file_id, block_num, strip_nr;
+
+
+-- .mode box --wrap off --quote
 -- select file_id, line_nr, line, substr( line_bytes, 1, 10 ), json_quote( eol ) as eol from _bv_lines_4 order by 1, 2;
-select file_id, line_nr, line, json_quote( eol ) as eol from bv_lines;
+-- select file_id, line_nr, line, json_quote( eol ) as eol from bv_lines;
 
 
 
