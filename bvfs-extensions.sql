@@ -355,14 +355,9 @@ select file_id, line_nr, line, eol from _bv_lines_matcher;
 .mode qbox --wrap 100 --wordwrap off
 
 -- ---------------------------------------------------------------------------------------------------------
--- drop view if exists bv_lines;
--- create view bv_lines as with recursive
---   lines( file_id, line_nr, line, eol )
-
--- ---------------------------------------------------------------------------------------------------------
 -- thx to https://chatgpt.com/s/t_692199a5be58819195de8b63a76e74fb
-drop view if exists bv_lines;
-create view bv_lines as with recursive
+drop view if exists _bv_lines_4;
+create view _bv_lines_4 as with recursive
   -- .......................................................................................................
   -- 1) Ordered strips with a global row number per file
   ordered as (
@@ -396,37 +391,60 @@ create view bv_lines as with recursive
     union all select -- Recursive step
         o.file_id,
         o.rn,
-
-        -- Start a new line when we encounter eol from the previous strip
-        case
+        -- .................................................................................................
+        case -- Start a new line when we encounter eol from the previous strip
           when l.eol != x'' then l.line_nr + 1
           else l.line_nr
         end as line_nr,
-
-        -- Append to current line unless previous strip ended a line
-        case
+        -- .................................................................................................
+        case -- Append to current line unless previous strip ended a line
           when l.eol != x'' then o.strip
           else l.line || o.strip
         end as line,
-
-        -- Current strip's eol becomes the state for next recursion
-        o.eol
+        -- .................................................................................................
+        o.eol -- Current strip's eol becomes the state for next recursion
+      -- ...................................................................................................
       from lines l
-      join ordered o
-        on o.file_id = l.file_id
-       and o.rn = l.rn + 1 )
+      join ordered o on ( o.file_id = l.file_id ) and ( o.rn = l.rn + 1 ) )
   -- .......................................................................................................
   -- 3) Select only completed logical lines (those that ended on an eol)
   select
       file_id,
       line_nr,
-      cast( line as text ) as line,
-      cast( eol  as text ) as eol
-  from lines
-  where eol != x''
+      coalesce( cast( line as text ), '' ) as line,
+      -- coalesce( line, x''                ) as line_bytes, -- not meant for production
+      coalesce( cast( eol  as text ), '' ) as eol
+  from lines;
+
+-- ---------------------------------------------------------------------------------------------------------
+drop view if exists bv_lines;
+-- create view bv_lines as select
+--     bl.file_id,
+--     bl.line_nr,
+--     bl.line,
+--     bl.eol
+--   from _bv_lines_4 as bl
+--   right join metadata as md on ( bl.file_id = md.id )
+--   order by file_id, line_nr;
+
+create view bv_lines as select
+    bp.file_id                as file_id,
+    coalesce( bl.line_nr, 1 ) as line_nr,
+    bp.name                   as name,
+    md.size                   as size,
+    coalesce( bl.line, ''  )  as line,
+    coalesce( bl.eol, ''   )  as eol
+  from metadata as md
+  left join bv_paths as bp on ( md.id = bp.file_id )
+  left join _bv_lines_4 as bl using ( file_id )
+  where true
+    and ( bp.type in ( 'file' ) )
+    -- and ( line_nr = 1 )
   order by file_id, line_nr;
 
+
 .mode box --wrap off --quote
+-- select file_id, line_nr, line, substr( line_bytes, 1, 10 ), json_quote( eol ) as eol from _bv_lines_4 order by 1, 2;
 select file_id, line_nr, line, json_quote( eol ) as eol from bv_lines;
 
 
