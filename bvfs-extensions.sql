@@ -298,3 +298,138 @@ select
   from _bv_lines_3
   order by file_id, block_num, strip_nr;
 
+-- ---------------------------------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------------------------------------
+drop table if exists bv_strips;
+create table bv_strips (
+    file_id     integer not null,
+    block_num   integer not null,
+    strip_nr    integer not null,
+    strip       text    not null,
+    eol         text    not null,
+  primary key ( file_id, block_num, strip_nr ) );
+
+-- ---------------------------------------------------------------------------------------------------------
+insert into bv_strips ( file_id, block_num, strip_nr, strip, eol ) values
+  ( 1, 1, 1, '(1)This is the first line.', '"\n"'->>'$' ),
+  ( 1, 1, 2, '(2)First part of second line', '' ),
+  ( 1, 2, 1, '(3) and heres the second part.', '"\n"'->>'$' ),
+  ( 1, 2, 2, '(4)The 3rd line ', '' ),
+  ( 1, 3, 1, '(5)extends ', '' ),
+  ( 1, 4, 1, '(6)over three strips in three blocks', '"\n"'->>'$' ),
+  ( 2, 4, 2, '(7)This is the first line.', '"\n"'->>'$' ),
+  ( 2, 4, 3, '(8)First part of second line', '' ),
+  ( 2, 5, 1, '(9) and heres the second part.', '"\n"'->>'$' ),
+  ( 2, 5, 2, '(10)The 3rd line ', '' ),
+  ( 2, 6, 1, '(11)extends ', '' ),
+  ( 2, 7, 1, '(12)over three strips in three blocks', '"\n"'->>'$' );
+
+-- ---------------------------------------------------------------------------------------------------------
+.mode json
+-- select file_id, block_num, strip_nr, strip, json_quote( eol ) from bv_strips;
+select file_id, block_num, strip_nr, strip, eol from bv_strips;
+.mode qbox --wrap 100 --wordwrap off
+
+-- ---------------------------------------------------------------------------------------------------------
+drop table if exists _bv_lines_matcher;
+create table _bv_lines_matcher (
+    file_id     integer not null,
+    line_nr     integer not null,
+    line        text    not null,
+    eol         text    not null,
+  primary key ( file_id, line_nr ) );
+
+-- ---------------------------------------------------------------------------------------------------------
+insert into _bv_lines_matcher ( file_id, line_nr, line, eol ) values
+  ( 1, 1, '(1)This is the first line.', '"\n"'->>'$' ),
+  ( 1, 2, '(1)First part of second line(1) and heres the second part.', '"\n"'->>'$' ),
+  ( 1, 3, '(1)The 3rd line (1)extends (1)over three strips in three blocks', '"\n"'->>'$' ),
+  ( 2, 1, '(1)This is the first line.', '"\n"'->>'$' ),
+  ( 2, 2, '(1)First part of second line(1) and heres the second part.', '"\n"'->>'$' ),
+  ( 2, 3, '(1)The 3rd line (1)extends (1)over three strips in three blocks', '"\n"'->>'$' );
+
+-- ---------------------------------------------------------------------------------------------------------
+.mode json
+-- select file_id, line_nr, line, json_quote( eol ) from _bv_lines_matcher;
+select file_id, line_nr, line, eol from _bv_lines_matcher;
+.mode qbox --wrap 100 --wordwrap off
+
+-- ---------------------------------------------------------------------------------------------------------
+-- drop view if exists bv_lines;
+-- create view bv_lines as with recursive
+--   lines( file_id, line_nr, line, eol )
+
+-- ---------------------------------------------------------------------------------------------------------
+-- thx to https://chatgpt.com/s/t_692199a5be58819195de8b63a76e74fb
+drop view if exists bv_lines;
+create view bv_lines as with recursive
+  -- .......................................................................................................
+  -- 1) Ordered strips with a global row number per file
+  ordered as (
+    select
+      file_id,
+      block_num,
+      strip_nr,
+      strip,
+      eol,
+      row_number() over (
+        partition by file_id
+        order by block_num, strip_nr
+      ) as rn
+    -- from bv_strips
+    from _bv_lines_3
+  ),
+  -- .......................................................................................................
+  -- 2) Recursive concatenation
+  lines(file_id, rn, line_nr, line, eol) as (
+    -- Base case: first strip becomes line 1
+    -- .....................................................................................................
+    select
+        file_id,
+        rn,
+        1 as line_nr,
+        strip as line,
+        eol
+    from ordered
+    where rn = 1
+    -- .....................................................................................................
+    union all select -- Recursive step
+        o.file_id,
+        o.rn,
+
+        -- Start a new line when we encounter eol from the previous strip
+        case
+          when l.eol != x'' then l.line_nr + 1
+          else l.line_nr
+        end as line_nr,
+
+        -- Append to current line unless previous strip ended a line
+        case
+          when l.eol != x'' then o.strip
+          else l.line || o.strip
+        end as line,
+
+        -- Current strip's eol becomes the state for next recursion
+        o.eol
+      from lines l
+      join ordered o
+        on o.file_id = l.file_id
+       and o.rn = l.rn + 1 )
+  -- .......................................................................................................
+  -- 3) Select only completed logical lines (those that ended on an eol)
+  select
+      file_id,
+      line_nr,
+      cast( line as text ) as line,
+      cast( eol  as text ) as eol
+  from lines
+  where eol != x''
+  order by file_id, line_nr;
+
+.mode box --wrap off --quote
+select file_id, line_nr, line, json_quote( eol ) as eol from bv_lines;
+
+
+
+
+
