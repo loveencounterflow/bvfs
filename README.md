@@ -182,7 +182,7 @@ p = p & 0b1111111_101_101_111 /* = 0o177557 = 0xff6f: folder, file closed */
   a shortcoming that would have to be made up for by application code. Another shortcoming is that `ls` and
   `cd` apparently do not show folder hierarchies (that are present in the database), which is unacceptable.
 
-* [`fossil fuefs`](https://sqlite.org/src/help?cmd=fusefs) is (confusingly) another FUSE file system from
+* [`fossil fusefs`](https://sqlite.org/src/help?cmd=fusefs) is (confusingly) another FUSE file system from
   the makers of SQLite. It should mount a FOSSIL VCS archive as file system. The description is hedging its
   bets ("FuseFS typically only works on Linux, and then only on Linux systems that have the right kernel
   drivers and have installed the appropriate support libraries") and in fact trying to `fossil fusefs
