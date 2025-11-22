@@ -99,7 +99,7 @@ create view if not exists bv_paths as with recursive
         child_id                                          as file_id,
         file_type                                         as file_type,
         name                                              as name,
-        case name when '.' then '/' else '/' || name end  as path
+        case name when '.' then '.' else name end         as path
       from dentry
       where true
         and ( parent_id is 1 )
@@ -118,10 +118,11 @@ create view if not exists bv_paths as with recursive
       join bv_path_tree as p on d.parent_id = p.file_id
       where true
         and ( d.name not in ( '.', '..' ) )
-        and ( path != '/' ) )
+        and ( path != '.' ) )
   -- .......................................................................................................
   select
       q.file_id                                     as file_id,
+      m.size                                        as size,
       q.parent_id                                   as parent_id,
       case when q.file_id is 1  then  'R' else
         case e.name
@@ -451,3 +452,4 @@ select file_id, line_nr, line, json_quote( eol ) as eol from bv_lines;
 
 
 
+select * from bv_paths order by file_id;
