@@ -453,3 +453,4 @@ select file_id, line_nr, line, json_quote( eol ) as eol from bv_lines;
 
 
 select * from bv_paths order by file_id;
+select 'bvfs-extensions.sql has run to completion' as message;
