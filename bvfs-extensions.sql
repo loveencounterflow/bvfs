@@ -208,7 +208,7 @@ create view _bv_lines_1 as select
   where pt.type in ( 'file' )
   window w1 as ( partition by dt.file_id order by dt.block_num );
 -- .........................................................................................................
-select * from _bv_lines_1 where false;
+select * from _bv_lines_1 where false; -- Gaps & Islands ESSFRI
 
 -- ---------------------------------------------------------------------------------------------------------
 drop view if exists _bv_lines_2;
@@ -222,7 +222,7 @@ create view _bv_lines_2 as select
       else b1.data end                          as data
   from _bv_lines_1 as b1;
 -- .........................................................................................................
-select * from _bv_lines_2 where false;
+select * from _bv_lines_2 where false; -- Gaps & Islands ESSFRI
 
 -- ---------------------------------------------------------------------------------------------------------
 drop view if exists _bv_lines_3;
@@ -258,7 +258,7 @@ create view _bv_lines_3 as with recursive
     from split
     order by file_id, block_num, strip_nr;
 -- .........................................................................................................
-select * from _bv_lines_3 where false;
+select * from _bv_lines_3 where false; -- Gaps & Islands ESSFRI
 
 -- ---------------------------------------------------------------------------------------------------------
 select
