@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+  - [https://chatgpt.com/s/t_692199a5be58819195de8b63a76e74fb](#httpschatgptcomst_692199a5be58819195de8b63a76e74fb)
+    - [Q](#q)
+    - [A](#a)
+- [✅ **Working Solution: View `bv_lines`**](#-working-solution-view-bv_lines)
+- [🔍 **Explanation**](#-explanation)
+    - [Step 1: `ordered`](#step-1-ordered)
+    - [Step 2: `lines` (recursive CTE)](#step-2-lines-recursive-cte)
+    - [Step 3: Final selection](#step-3-final-selection)
+- [✅ **Result**](#-result)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 
 ## https://chatgpt.com/s/t_692199a5be58819195de8b63a76e74fb

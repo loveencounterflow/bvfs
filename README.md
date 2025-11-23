@@ -14,6 +14,7 @@
     - [Closed and Opened Modes](#closed-and-opened-modes)
     - [Other](#other)
   - [File System Manipulation via SQL](#file-system-manipulation-via-sql)
+  - [Future](#future)
   - [See Also](#see-also)
   - [To Do](#to-do)
 
@@ -169,12 +170,37 @@ p = p & 0b1111111_101_101_111 /* = 0o177557 = 0xff6f: folder, file closed */
   * `F`' has `0o444` = `.r--r--r--` = `0x0124` = `0b00000100100100` (owned by user)
 
 
+## Future
 
+* Implement FS in JS with `fuse-friends/fuse-native`.
+
+* Do not update / change / modify / develop `narumatt/fusefs` because it will never (in the foreseeable
+  future) be capable of holding virtual files and never accommodate UDFs implemented in JS which is
+  essential even for such simple tasks as splitting files into lines (after much wrangling and notable,
+  surprisingly good SQL code curtesy of Chad, G.P.T., that (surprisingly lengthy) pure-SQL code still has
+  subtle bugs that only become apparent with sufficiently big files.
+
+* Add to this the poor performance of the line-splitting algorithm; it's performance has been benchmarked to
+  be a mere fraction of what can be done with JS *on the virtual file system, using the FUSE bindings*. In
+  other words, the convoluted, recursive SQL is indeed the probable cause for a remarkable setback in terms
+  of lines per second).
 
 
 ## See Also
 
-* [`sqlar` and `sqlarfs`](https://sqlite.org/sqlar/doc/trunk/README.md) provide a FUSE-mountable archiv
+* ⭐⭐[`fuse-friends/fuse-native`](https://github.com/fuse-friends/fuse-native) (was: `mafintosh/fuse-native`)
+  is the most promising FUSE bindings for NodeJS and the only one that builds without snags.
+
+* ⭐[`benallfree/neofuse`](https://github.com/benallfree/neofuse) has been stuck with v0.0.1-rc3 since summer
+  2025; it would require some patching to make it work as-is (see `3rd-party-repos/benallfree-neofuse`)
+
+* ❓https://github.com/131/sqlfs
+
+* 🛑[`direktspeed/node-fuse-bindings`](https://github.com/direktspeed/node-fuse-bindings) stopped development
+  in 2022 the latest and uses an ancient version of `node-gyp`; updating to more recent versions did not
+  make any of the scripts in `package.json` complete without error.
+
+* 🛑[`sqlar` and `sqlarfs`](https://sqlite.org/sqlar/doc/trunk/README.md) provide a FUSE-mountable archiv
   format in an SQLite DB file. On the pro side the implementation makes do with one table and an index by
   storing the paths directly as strings in the DB and the structure is simple and transparent. On the con
   side that also means that file manipulation tools can do very little beyond listing and reading files—for
@@ -182,18 +208,16 @@ p = p & 0b1111111_101_101_111 /* = 0o177557 = 0xff6f: folder, file closed */
   a shortcoming that would have to be made up for by application code. Another shortcoming is that `ls` and
   `cd` apparently do not show folder hierarchies (that are present in the database), which is unacceptable.
 
-* [`fossil fusefs`](https://sqlite.org/src/help?cmd=fusefs) is (confusingly) another FUSE file system from
+* 🛑[`fossil fusefs`](https://sqlite.org/src/help?cmd=fusefs) is (confusingly) another FUSE file system from
   the makers of SQLite. It should mount a FOSSIL VCS archive as file system. The description is hedging its
   bets ("FuseFS typically only works on Linux, and then only on Linux systems that have the right kernel
   drivers and have installed the appropriate support libraries") and in fact trying to `fossil fusefs
   sqlar.fossil` produced `The FuseFS is not available in this build.`, and no further efforts were made.
 
-* [`presslabs/gitfs`](https://github.com/presslabs/gitfs) is (was) an effort to make git repos mountable as
+* 🛑[`presslabs/gitfs`](https://github.com/presslabs/gitfs) is (was) an effort to make git repos mountable as
   file systems where any changes within that FS would be transparently committed and uploaded to a remote
   repo. Unfortunately it's also very much [abandonware](https://github.com/presslabs/gitfs/issues) like [a
   bunch of others](https://github.com/davesque/gitfuse).
-
-* https://github.com/131/sqlfs
 
 ## To Do
 
