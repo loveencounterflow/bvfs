@@ -17,6 +17,9 @@ importers:
       execa:
         specifier: ^9.6.0
         version: 9.6.0
+      fuse-native:
+        specifier: ^2.2.6
+        version: 2.2.6
       guy:
         specifier: ^14.2.0
         version: 14.2.0
@@ -66,6 +69,22 @@ packages:
     resolution: {integrity: sha512-d+l3qxjSesT4V7v2fh+QnmFnUWv9lSpjarhShNTgBOfA0ttejbQUAlHLitbjkoRiDulW0OPoQPYIGhIC8ohejg==}
     engines: {node: '>=18'}
 
+  fuse-native@2.2.6:
+    resolution: {integrity: sha512-Y5wXd7vUsWWWIIHbjluv7jKZgPZaSVA5YWaW3I5fXIJfcGWL6IRUgoBUveQAq+D8cG9cCiGNahv9CeToccCXrw==}
+    hasBin: true
+
+  fuse-shared-library-darwin@1.1.3:
+    resolution: {integrity: sha512-4Q8gMxyMl1+gwHGpiYUoKKpi7xq8WcPo0TvJvjZzHMuCiszouu2GgEs6SJAqPB3LjfmEkl6kPV+2Oluczr0Nig==}
+
+  fuse-shared-library-linux-arm@1.0.0:
+    resolution: {integrity: sha512-Dj4ssxo1/MKGvOsVWRblSRu+o5F5OJTrVPDkjSyGDU2yKvVnIzQSwy1deiWA0qCcS/Q8iJMlZaCpCcZWSwvoug==}
+
+  fuse-shared-library-linux@1.0.1:
+    resolution: {integrity: sha512-07MQRSobrBKwW4D7oKm0gM2TwgvZWb+gC08JdiYDG4KBTncxk9ssqEDiDMKll8hpseZufsY2w1yc/feOu2DPmQ==}
+
+  fuse-shared-library@1.1.1:
+    resolution: {integrity: sha512-EfgTo/eS1euZFUe7x8KqyA40hV4DwP7kqp1VNZApu2nlPnJv8SanraBE3VXyX7ff41sxw7M0oWY7re3G3wnZVA==}
+
   get-east-asian-width@1.4.0:
     resolution: {integrity: sha512-QZjmEOC+IT1uk6Rx0sX22V6uHWVwbdbxf1faPqJ1QhLdGgsRGCZoyaQBm/piRdJy/D2um6hM1UP7ZEeQ4EkP+Q==}
     engines: {node: '>=18'}
@@ -80,6 +99,9 @@ packages:
   human-signals@8.0.1:
     resolution: {integrity: sha512-eKCa6bwnJhvxj14kZk5NCPc6Hb6BdsU9DZcOnmQKSnO1VKrfV0zCvtttPZUsBvjmNDn8rpcJfpwSYnHBjc95MQ==}
     engines: {node: '>=18.18.0'}
+
+  inherits@2.0.4:
+    resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
 
   intertype-legacy@7.7.1:
     resolution: {integrity: sha512-Bj3k9bCu8vA6JLIvnCrJXOdkecgY5wtCmORclJ87uq22N53swREHT5bezSeK5TwcxgSJEDg2wEfcn4kNr9Qv8A==}
@@ -107,6 +129,16 @@ packages:
 
   multimix@5.0.0:
     resolution: {integrity: sha512-N9cdGSDDD7kxOV7R6e4iZqsHTZ4F4iiSDWqMcVqx4gEH6HBtRXav39Gj3fgT1YqvBcwPCQuf0Oa5R2cDaLWK8A==}
+
+  nanoresource@1.3.0:
+    resolution: {integrity: sha512-OI5dswqipmlYfyL3k/YMm7mbERlh4Bd1KuKdMHpeoVD1iVxqxaTMKleB4qaA2mbQZ6/zMNSxCXv9M9P/YbqTuQ==}
+
+  napi-macros@2.2.2:
+    resolution: {integrity: sha512-hmEVtAGYzVQpCKdbQea4skABsdXW4RUh5t5mJ2zzqowJS2OyXZTU1KhDVFhx+NlWZ4ap9mqR9TcDO3LTTttd+g==}
+
+  node-gyp-build@4.8.4:
+    resolution: {integrity: sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==}
+    hasBin: true
 
   normalize-function-arguments@0.2.0:
     resolution: {integrity: sha512-iICxJ8rWBffB807XWlqvvIgjlL2vvf3M+6pPkPQ/t8++1NKH0fbKvqEZuEx1z3fV+DrwK0n/TBzvljymT7tEow==}
@@ -218,6 +250,25 @@ snapshots:
     dependencies:
       is-unicode-supported: 2.1.0
 
+  fuse-native@2.2.6:
+    dependencies:
+      fuse-shared-library: 1.1.1
+      nanoresource: 1.3.0
+      napi-macros: 2.2.2
+      node-gyp-build: 4.8.4
+
+  fuse-shared-library-darwin@1.1.3: {}
+
+  fuse-shared-library-linux-arm@1.0.0: {}
+
+  fuse-shared-library-linux@1.0.1: {}
+
+  fuse-shared-library@1.1.1:
+    dependencies:
+      fuse-shared-library-darwin: 1.1.3
+      fuse-shared-library-linux: 1.0.1
+      fuse-shared-library-linux-arm: 1.0.0
+
   get-east-asian-width@1.4.0: {}
 
   get-stream@9.0.1:
@@ -230,6 +281,8 @@ snapshots:
       intertype-legacy: 7.7.1
 
   human-signals@8.0.1: {}
+
+  inherits@2.0.4: {}
 
   intertype-legacy@7.7.1:
     dependencies:
@@ -248,6 +301,14 @@ snapshots:
   loupe@3.2.1: {}
 
   multimix@5.0.0: {}
+
+  nanoresource@1.3.0:
+    dependencies:
+      inherits: 2.0.4
+
+  napi-macros@2.2.2: {}
+
+  node-gyp-build@4.8.4: {}
 
   normalize-function-arguments@0.2.0:
     dependencies:
